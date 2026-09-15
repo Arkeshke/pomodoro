@@ -1666,12 +1666,16 @@ document.getElementById('stopSoundBtn').addEventListener('click', () => {
 document.getElementById('closeSound').addEventListener('click', () => closePanel('soundPanel'));
 
 /* ============================================================
-   🎤 МИКРОФОН — запись своего звука
+   🎤 МИКРОФОН — запись через Web Audio API (без MediaRecorder)
+   Захватываем сырые PCM-сэмплы → сами собираем AudioBuffer.
+   Никакого decodeAudioData → работает везде.
    ============================================================ */
 let micStream = null;
-let mediaRecorder = null;
+let micSourceNode = null;
+let micProcessor = null;
 let micChunks = [];
-let micBuffer = null;        // AudioBuffer после декодирования
+let micRecordingLength = 0;
+let micBuffer = null;
 let micSource = null;
 let micPlaying = false;
 let micRecording = false;
@@ -1682,7 +1686,6 @@ const micPlayBtn   = document.getElementById('micPlayBtn');
 const micDeleteBtn = document.getElementById('micDeleteBtn');
 
 function updateMicUI() {
-  // Статус
   if (micRecording) {
     micStatusEl.textContent = '🔴 Идёт запись...';
   } else if (micBuffer) {
@@ -1691,11 +1694,9 @@ function updateMicUI() {
     micStatusEl.textContent = 'Не записано';
   }
 
-  // Кнопка записи
   micRecordBtn.textContent = micRecording ? '⏹ Стоп' : '🔴 Записать';
   micRecordBtn.classList.toggle('recording', micRecording);
 
-  // Кнопка воспроизведения
   if (micBuffer) {
     micPlayBtn.disabled = false;
     micPlayBtn.textContent = micPlaying ? '⏸ Стоп' : '▶ Играть';
@@ -1706,50 +1707,56 @@ function updateMicUI() {
     micPlayBtn.classList.remove('playing');
   }
 
-  // Кнопка удаления
   micDeleteBtn.disabled = !micBuffer || micRecording;
 }
 
 async function startMicRecording() {
+  if (micRecording) return;
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       showToast('❌ Микрофон не поддерживается');
       return;
     }
-    // Остановим проигрывание, если играло
+
     stopMicPlayback();
     stopSound();
 
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? 'audio/webm;codecs=opus'
-      : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+    const ctx = ensureAudio();
 
-    mediaRecorder = mime
-      ? new MediaRecorder(micStream, { mimeType: mime })
-      : new MediaRecorder(micStream);
-
-    micChunks = [];
-    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) micChunks.push(e.data); };
-    mediaRecorder.onstop = async () => {
-      micRecording = false;
-      micStream.getTracks().forEach(t => t.stop());
-      micStream = null;
-      const blob = new Blob(micChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-      try {
-        const arrBuf = await blob.arrayBuffer();
-        const decoded = await audioCtx.decodeAudioData(arrBuf.slice(0));
-        micBuffer = decoded;
-        updateMicUI();
-        showToast(`🎤 Записано ${micBuffer.duration.toFixed(1)}с`);
-      } catch (e) {
-        console.error(e);
-        showToast('❌ Ошибка обработки записи');
-        updateMicUI();
+    // 1) Доступ к микрофону
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
       }
+    });
+
+    // 2) Источник из медиапотока
+    micSourceNode = ctx.createMediaStreamSource(micStream);
+
+    // 3) ScriptProcessor перехватывает сырые Float32-сэмплы
+    micProcessor = ctx.createScriptProcessor(4096, 1, 1);
+    micChunks = [];
+    micRecordingLength = 0;
+
+    micProcessor.onaudioprocess = (e) => {
+      if (!micRecording) return;
+      const input = e.inputBuffer.getChannelData(0);
+      // ВАЖНО: копируем — внутренний буфер переиспользуется
+      micChunks.push(new Float32Array(input));
+      micRecordingLength += input.length;
     };
 
-    mediaRecorder.start();
+    // 4) Тихий gain, чтобы микрофон не шёл в колонки (иначе feedback)
+    const silent = ctx.createGain();
+    silent.gain.value = 0;
+    micProcessor._silent = silent;
+
+    micSourceNode.connect(micProcessor);
+    micProcessor.connect(silent);
+    silent.connect(ctx.destination);
+
     micRecording = true;
     updateMicUI();
     showToast('🔴 Запись началась');
@@ -1762,15 +1769,42 @@ async function startMicRecording() {
 }
 
 function stopMicRecording() {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop();
+  if (!micRecording) return;
+  micRecording = false;
+
+  try { micProcessor && micProcessor.disconnect(); } catch(e){}
+  try { micProcessor && micProcessor._silent && micProcessor._silent.disconnect(); } catch(e){}
+  try { micSourceNode && micSourceNode.disconnect(); } catch(e){}
+  if (micStream) {
+    micStream.getTracks().forEach(t => t.stop());
+    micStream = null;
   }
+
+  // Собираем AudioBuffer из накопленных чанков — БЕЗ decodeAudioData
+  const ctx = audioCtx;
+  if (micChunks.length > 0 && micRecordingLength > 0) {
+    const buf = ctx.createBuffer(1, micRecordingLength, ctx.sampleRate);
+    const chan = buf.getChannelData(0);
+    let offset = 0;
+    for (const chunk of micChunks) {
+      chan.set(chunk, offset);
+      offset += chunk.length;
+    }
+    micBuffer = buf;
+    showToast(`🎤 Записано ${micBuffer.duration.toFixed(1)}с`);
+  }
+
+  micChunks = [];
+  micRecordingLength = 0;
+  micProcessor = null;
+  micSourceNode = null;
+  updateMicUI();
 }
 
 function playMicBuffer() {
   if (!micBuffer) return;
   const ctx = ensureAudio();
-  stopSound();      // остановить фоновый звук
+  stopSound();
   if (micSource) { try { micSource.stop(); } catch(e){} }
   micSource = ctx.createBufferSource();
   micSource.buffer = micBuffer;
