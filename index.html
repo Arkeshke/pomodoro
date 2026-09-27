@@ -430,6 +430,231 @@
   }
   .sound-item .sound-icon { font-size: 24px; line-height: 1; }
 
+ /* ============================================================
+   ⚙️ SETTINGS PANEL — редизайн под общий стиль
+   ============================================================ */
+.settings-card {
+  width: min(94vw, 460px);
+}
+
+.settings-card .panel-title {
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: 5px;
+  opacity: 0.6;
+}
+
+/* Заголовки секций */
+.settings-section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.42;
+  padding: 20px 10px 10px;
+  font-weight: 500;
+}
+
+/* Контейнер списка настроек */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Строка настройки — стеклянная капсула */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 10px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 12px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  min-height: 56px;
+}
+
+.setting-row:hover {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.setting-label {
+  font-size: 13.5px;
+  letter-spacing: 0.3px;
+  opacity: 0.88;
+  flex-shrink: 0;
+}
+
+/* ---------- Степпер ---------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 40px;
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: none;
+}
+
+.stepper-btn:active {
+  transform: scale(0.88);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.stepper input[type="number"] {
+  width: 44px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stepper input[type="number"]::-webkit-outer-spin-button,
+.stepper input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-suffix {
+  font-size: 11px;
+  opacity: 0.42;
+  padding: 0 8px 0 2px;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+}
+
+/* ---------- Time pill ---------- */
+.time-pill {
+  width: 92px;
+  padding: 9px 12px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.time-pill:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.time-pill:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.14);
+}
+
+.time-pill::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.9);
+  opacity: 0.5;
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.time-pill::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ---------- Small-btn в контексте настроек ---------- */
+.settings-card .small-btn {
+  padding: 9px 16px;
+  border-radius: 40px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.settings-card .small-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+/* ---------- Кнопки внизу панели ---------- */
+.settings-card .panel-actions {
+  margin-top: 26px;
+  gap: 10px;
+}
+
+.settings-card .panel-actions button {
+  padding: 14px 18px;
+  border-radius: 40px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.22s ease;
+}
+
+.settings-card .panel-actions button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.settings-card .panel-actions .primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 22px rgba(255, 107, 107, 0.4);
+  color: #fff;
+}
+
+.settings-card .panel-actions .primary:hover {
+  background: var(--accent);
+  filter: brightness(1.1);
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.55);
+}
+
+/* Hint-текст в настройках */
+.settings-card .panel-hint {
+  font-size: 11.5px;
+  opacity: 0.48;
+  line-height: 1.6;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
   /* ---------- Mic panel ---------- */
   .mic-panel {
     padding: 14px;
@@ -560,40 +785,60 @@
 
 <!-- ============ НАСТРОЙКИ ============ -->
 <div class="panel" id="settingsPanel">
-  <div class="panel-card">
+  <div class="panel-card settings-card">
     <div class="panel-title">Настройки</div>
 
-    <div class="field">
-      <label>Работа, мин</label>
-      <input type="number" id="workInput" min="1" max="180" value="25">
-    </div>
-    <div class="field">
-      <label>Отдых, мин</label>
-      <input type="number" id="breakInput" min="1" max="60" value="5">
-    </div>
-    <div class="field">
-      <label>Сессий до конца</label>
-      <input type="number" id="sessionsInput" min="1" max="12" value="4">
+    <div class="settings-section-label">⏱ Таймеры</div>
+    <div class="settings-list">
+      <div class="setting-row">
+        <span class="setting-label">Работа</span>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-step="workInput:-5">−</button>
+          <input type="number" id="workInput" min="1" max="180" value="25">
+          <span class="stepper-suffix">мин</span>
+          <button type="button" class="stepper-btn" data-step="workInput:5">+</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Отдых</span>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-step="breakInput:-1">−</button>
+          <input type="number" id="breakInput" min="1" max="60" value="5">
+          <span class="stepper-suffix">мин</span>
+          <button type="button" class="stepper-btn" data-step="breakInput:1">+</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Сессий до конца</span>
+        <div class="stepper">
+          <button type="button" class="stepper-btn" data-step="sessionsInput:-1">−</button>
+          <input type="number" id="sessionsInput" min="1" max="12" value="4">
+          <button type="button" class="stepper-btn" data-step="sessionsInput:1">+</button>
+        </div>
+      </div>
     </div>
 
-    <div class="panel-subtitle">🔔 Напоминание</div>
-    <div class="field">
-      <label>Включить напоминание</label>
-      <label class="switch">
-        <input type="checkbox" id="reminderToggle">
-        <span class="slider"></span>
-      </label>
+    <div class="settings-section-label">🔔 Напоминание</div>
+    <div class="settings-list">
+      <div class="setting-row">
+        <span class="setting-label">Включить</span>
+        <label class="switch">
+          <input type="checkbox" id="reminderToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Время</span>
+        <input type="time" id="reminderTime" value="14:00" class="time-pill">
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Уведомления</span>
+        <button class="small-btn" id="requestPermBtn">Проверить</button>
+      </div>
     </div>
-    <div class="field">
-      <label>Время напоминания</label>
-      <input type="time" id="reminderTime" value="14:00">
-    </div>
-    <div class="field">
-      <label>Системные уведомления</label>
-      <button class="small-btn" id="requestPermBtn">Проверить</button>
-    </div>
-    <div class="panel-hint">
-      Уведомления работают на уровне системы — приходят даже если вкладка свёрнута, браузер в фоне или вы в другом приложении.
+
+    <div class="panel-hint" style="padding: 12px 10px 0;">
+      Уведомления работают на уровне системы — приходят даже если вкладка свёрнута или вы в другом приложении.
     </div>
 
     <div class="panel-actions">
@@ -2124,6 +2369,23 @@ const requestPermBtn = document.getElementById('requestPermBtn');
 let reminderEnabled = STORE.get('reminderEnabled', false);
 let reminderTime = STORE.get('reminderTime', '14:00');
 let lastNotifiedKey = null;
+
+/* ---------- Степперы +/− для числовых полей ---------- */
+document.querySelectorAll('.stepper-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const [inputId, stepStr] = btn.dataset.step.split(':');
+    const step = parseInt(stepStr, 10);
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const min = parseInt(input.min, 10);
+    const max = parseInt(input.max, 10);
+    let val = parseInt(input.value, 10) || 0;
+
+    val = Math.max(min, Math.min(max, val + step));
+    input.value = val;
+  });
+});
 
 function openPanel(id) { document.getElementById(id).classList.add('open'); }
 function closePanel(id) { document.getElementById(id).classList.remove('open'); }
